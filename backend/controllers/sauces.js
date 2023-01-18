@@ -105,7 +105,7 @@ exports.deleteSauce = (req, res, next) => {
 
 exports.LikeAndDislike = (req, res, next) => {
   console.log('je suis dans le controler like')
-
+  
 
   //affichage du req.body
   console.log(req.body);
@@ -121,11 +121,23 @@ Sauce.findOne({_id : req.params.id})
 .then((objet) => {
   console.log("--->CONTENU resultat promise : objet");
   console.log(objet);
+
+ 
+   /*  if ( req.body.like !== 1 ||  req.body.like !== 0 || req.body.like !== -1) {
+    return res.status(400).json({ message: "Mauvaise requete" });
+  }   
+  */
+
   //like = 1 (likes = +1)
   
 
   // si le userliked est False et si like === 1
  if (!objet.usersLiked.includes(req.body.userId) && req.body.like === 1){
+  
+  if (objet.usersDisliked.includes(req.body.userId)) {
+    return res.status(400).json({ message: "Pas autorisé de liké alors qu'on a disliké" });
+  }
+
 console.log("-----> userId n'est pas dans la usersLiked BDD et requete front like a 1")
   /* else {
   console.log("false")
@@ -167,8 +179,14 @@ Sauce.updateOne(
 
 //Like = -1 (dislikes = +1)
 
+if (objet.usersLiked.includes(req.body.userId) && req.body.like === -1) {
+  return res.status(400).json({ message: "Pas autorisé de disliked alors qu'on a liked" });
+}
+
 if (!objet.usersDisliked.includes(req.body.userId) && req.body.like === -1){
   console.log("-----> userId est dans la usersDisliked  et disLikes = 1")
+
+
     /* else {
     console.log("false")
   }  */

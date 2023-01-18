@@ -1,4 +1,5 @@
 const express = require('express');
+const helmet = require("helmet");
 const mongoose = require('mongoose');
 
 const stuffRoutes = require('./routes/sauces');
@@ -6,6 +7,7 @@ const userRoutes = require('./routes/user');
 const path = require('path'); // (ca regle le pb d'en bas)
 
 const app = express();
+app.use(helmet({crossOriginResourcePolicy: false,}));
 
 mongoose.connect('mongodb+srv://lychar20:borgiasOZ1664@cluster0.wzq2x9b.mongodb.net/?retryWrites=true&w=majority',
   { useNewUrlParser: true,
