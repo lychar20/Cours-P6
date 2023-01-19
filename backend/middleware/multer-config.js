@@ -18,4 +18,3 @@ const storage = multer.diskStorage({
 });
 
 module.exports = multer({storage: storage}).single('image');
-// module.exports = multer({storage}).single('image');    // a verfier

@@ -4,9 +4,12 @@ const mongoose = require('mongoose');
 
 const stuffRoutes = require('./routes/sauces');
 const userRoutes = require('./routes/user');
-const path = require('path'); // (ca regle le pb d'en bas)
+const path = require('path'); 
 require('dotenv').config();
-console.log(process.env)
+//console.log(process.env)
+
+const mongoSanitize = require('express-mongo-sanitize');
+
 
 const app = express();
 app.use(helmet({crossOriginResourcePolicy: false,}));
@@ -35,5 +38,6 @@ app.use((req, res, next) => {
   app.use('/api/sauces', stuffRoutes);   //app.use('/api/stuff', stuffRoutes);
   app.use('/api/auth', userRoutes); 
   app.use('/images', express.static(path.join(__dirname, 'images'))); // bug bient d'ici
+  app.use(mongoSanitize());
 
 module.exports = app;

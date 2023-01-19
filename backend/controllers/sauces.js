@@ -1,13 +1,13 @@
 const Sauce = require('../models/sauces');
 const fs = require('fs');
-//const sauce = require('../models/sauce');
+
 
  exports.createSauce = (req, res, next) => {
   console.log(req.body)
   const sauceObject = JSON.parse(req.body.sauce);
   delete sauceObject._id;
   console.log(sauceObject)
-  //delete sauceObject._userId;
+  
   const sauce = new Sauce({
       ...sauceObject,
       userId: req.auth.userId,
@@ -68,9 +68,9 @@ exports.modifySauce = (req, res, next) => {
 exports.deleteSauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id})
       .then(sauce => {
-          if (sauce.userId != req.auth.userId) {
+           if (sauce.userId != req.auth.userId) {
               res.status(401).json({message: 'Not authorized'});
-          } else {
+          } else { 
               const filename = sauce.imageUrl.split('/images/')[1];
               fs.unlink(`images/${filename}`, () => {
                   Sauce.deleteOne({_id: req.params.id})
@@ -104,151 +104,113 @@ exports.deleteSauce = (req, res, next) => {
 
 
 exports.LikeAndDislike = (req, res, next) => {
-  console.log('je suis dans le controler like')
-  
 
-  //affichage du req.body
-  console.log(req.body);
-
-// recupéré l'id dans url de la requete
-console.log(req.params);
-
-//mise au formant de l'id pour aller chercher les donnée dans la base de donnée
-console.log({_id : req.params.id})
-
-//Aller chercher l'objet dans la base de donnée
-Sauce.findOne({_id : req.params.id})
-.then((objet) => {
-  console.log("--->CONTENU resultat promise : objet");
-  console.log(objet);
+  //Aller chercher l'objet dans la base de donnée
+  Sauce.findOne({_id : req.params.id})
+  .then((objet) => {
+    console.log("--->CONTENU resultat promise : objet");
 
 
-  // Mon code test est en dessous--------------------------------------------------
+    //  Chiffre différrents
 
-  
- 
-/*       if (req.body.like !== 1 || req.body.like !== 0 || req.body.like !== -1) {
-     return  res.status(400).json({ message: "Mauvaise requete" });
-       
-    } */
+      if (req.body.like !== 1 || req.body.like !== -1 || req.body.like !== 0) {
+      console.log("Pas autorisé , ni 0 ni 1 ni -1")
+      //return res.status(400).json({ message: "Pas autorisé , ni 0 ni 1 ni -1" });
+    }  
 
-  //like = 1 (likes = +1)
-  
-
-  // si le userliked est False et si like === 1
- if (!objet.usersLiked.includes(req.body.userId) && req.body.like === 1){
-  
-  if (objet.usersDisliked.includes(req.body.userId)) {
-    return res.status(400).json({ message: "Pas autorisé de liké alors qu'on a disliké" });
-  }
-
-console.log("-----> userId n'est pas dans la usersLiked BDD et requete front like a 1")
-  /* else {
-  console.log("false")
-}  */
-
-//mise à jour objet BDD
-Sauce.updateOne(
-  {_id : req.params.id},
-  {
-  $inc: {likes: 1},
-  $push: {usersLiked: req.body.userId}
-  }
-
-)
-.then(() => res.status(201).json({ message: "IDuser like +1"}))
-.catch((error) => res.status(400).json({error}));
-
-} /* else */
-
-//like = 0 (lkes = 0, pas de vote)
-
-  if (objet.usersLiked.includes(req.body.userId)  && req.body.like === 0){
-  console.log("-----> userId est dans la usersLiked et like = 0");
-  //}  
-  
-  //mise à jour objet BDD
-  Sauce.updateOne(
-    {_id : req.params.id},
-    {
-    $inc: {likes: -1},
-    $pull: {usersLiked: req.body.userId}
+    if (objet.usersDisliked.includes(req.body.userId) && req.body.like === 1) {
+      return res.status(400).json({ message: "Pas autorisé de liké alors qu'on a disliké" });
     }
-  
-  )
-  .then(() => res.status(201).json({ message: "IDuser like O"}))
-  .catch((error) => res.status(400).json({error}));
-  
-} /* else */
-
-//Like = -1 (dislikes = +1)
-
-if (objet.usersLiked.includes(req.body.userId) && req.body.like === -1) {
-  return res.status(400).json({ message: "Pas autorisé de disliked alors qu'on a liked" });
-}
-
-if (!objet.usersDisliked.includes(req.body.userId) && req.body.like === -1){
-  console.log("-----> userId est dans la usersDisliked  et disLikes = 1")
-
-
-    /* else {
-    console.log("false")
-  }  */
-  
-  //mise à jour objet BDD
-  Sauce.updateOne(
-    {_id : req.params.id},
-    {
-    $inc: {dislikes: 1},
-    $push: {usersDisliked: req.body.userId}
+    if (objet.usersLiked.includes(req.body.userId) && req.body.like === -1) {
+      return res.status(400).json({ message: "Pas autorisé de disliked alors qu'on a liked" });
     }
-  
-  )
-  .then(() => res.status(201).json({ message: "Sauce disLike +1"}))
-  .catch((error) => res.status(400).json({error}));
-
-  } /* else */
-// Après un like = -1 on met un like = 0, pas de vote on enlève le dislike
-  
-if (objet.usersDisliked.includes(req.body.userId)  && req.body.like === 0){
-  console.log("-----> userId est dans  usersdisLiked et like = 0");
-  //}  
-  
-  //mise à jour objet BDD
-  Sauce.updateOne(
-    {_id : req.params.id},
-    {
-    $inc: {dislikes: -1},
-    $pull: {usersDisliked: req.body.userId}
+    if (!objet.usersLiked.includes(req.body.userId) 
+    && !objet.usersDisliked.includes(req.body.userId)
+    && req.body.like === 0) {
+      return res.status(400).json({ message: "Pas autorisé de mettre 0 si jamais liké ou disliké" });
     }
-  
-  )
-  .then(() => res.status(201).json({ message: "IDuser dislike O"}))
-  .catch((error) => res.status(400).json({error}));
-
-  
-  }
-})
-
-
-
-.catch((error) => {
-  res.status(400).json({
-    error: error
+    
+    // si le userliked est False et si like === 1
+    if (!objet.usersLiked.includes(req.body.userId) && req.body.like === 1){
+    
+    
+    //mise à jour objet BDD
+    Sauce.updateOne(
+      {_id : req.params.id},
+      {
+      $inc: {likes: 1},
+      $push: {usersLiked: req.body.userId}
+      }
+    )
+    .then(() => res.status(201).json({ message: "IDuser like +1"}))
+    .catch((error) => res.status(400).json({error}));
+  } 
+  //like = 0 (lkes = 0, pas de vote)
+    if (objet.usersLiked.includes(req.body.userId)  && req.body.like === 0){
+    console.log("-----> userId est dans la usersLiked et like = 0");
+    //}  
+    
+    //mise à jour objet BDD
+    Sauce.updateOne(
+      {_id : req.params.id},
+      {
+      $inc: {likes: -1},
+      $pull: {usersLiked: req.body.userId}
+      }
+    
+    )
+    .then(() => res.status(201).json({ message: "IDuser like O"}))
+    .catch((error) => res.status(400).json({error}));
+    
+  } 
+  if (!objet.usersDisliked.includes(req.body.userId) && req.body.like === -1){
+    console.log("-----> userId est dans la usersDisliked  et disLikes = 1")
+     
+    
+    //mise à jour objet BDD
+    Sauce.updateOne(
+      {_id : req.params.id},
+      {
+      $inc: {dislikes: 1},
+      $push: {usersDisliked: req.body.userId}
+      }
+    
+    )
+    .then(() => res.status(201).json({ message: "Sauce disLike +1"}))
+    .catch((error) => res.status(400).json({error}));
+    } 
+  // Après un like = -1 on met un like = 0, pas de vote on enlève le dislike
+    
+  if (objet.usersDisliked.includes(req.body.userId)  && req.body.like === 0){
+    console.log("-----> userId est dans  usersdisLiked et like = 0");
+    //}  
+    
+    //mise à jour objet BDD
+    Sauce.updateOne(
+      {_id : req.params.id},
+      {
+      $inc: {dislikes: -1},
+      $pull: {usersDisliked: req.body.userId}
+      }
+    
+    )
+    .then(() => res.status(201).json({ message: "IDuser dislike O"}))
+    .catch((error) => res.status(400).json({error}));
+    
+    }
+  })
+  .catch((error) => {
+    res.status(400).json({
+      error: error
+    });
   });
-});
+  }
 
 
 
 
 
-}
 
-
-
-
-
-//-------------------------------------------test de code--------------------------
 
 
 
