@@ -122,11 +122,15 @@ Sauce.findOne({_id : req.params.id})
   console.log("--->CONTENU resultat promise : objet");
   console.log(objet);
 
+
+  // Mon code test est en dessous--------------------------------------------------
+
+  
  
-   /*  if ( req.body.like !== 1 ||  req.body.like !== 0 || req.body.like !== -1) {
-    return res.status(400).json({ message: "Mauvaise requete" });
-  }   
-  */
+/*       if (req.body.like !== 1 || req.body.like !== 0 || req.body.like !== -1) {
+     return  res.status(400).json({ message: "Mauvaise requete" });
+       
+    } */
 
   //like = 1 (likes = +1)
   
@@ -239,6 +243,10 @@ if (objet.usersDisliked.includes(req.body.userId)  && req.body.like === 0){
 
 
 }
+
+
+
+
 
 //-------------------------------------------test de code--------------------------
 
